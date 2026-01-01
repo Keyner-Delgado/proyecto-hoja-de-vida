@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Experiencia Laboral - {{ perfil.nombres }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark">
+            <i class="bi bi-building-gear text-primary me-2"></i>Experiencia Laboral
+        </h2>
+        <hr class="mx-auto" style="width: 50px; height: 3px; background-color: #0d6efd;">
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            {% for exp in items %}
+                {% if exp.activarparaqueseveaenfront %}
+                <div class="card mb-4 shadow-sm border-0 border-top border-primary border-4 overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-md-3 bg-light d-flex flex-column align-items-center justify-content-center border-end p-3 text-center">
+                            <span class="badge bg-primary mb-2 p-2 w-100">
+                                <i class="bi bi-calendar-check me-1"></i> Inicio: {{ exp.fechainiciogestion|date:"d/m/Y" }}
+                            </span>
+                            <span class="badge bg-secondary p-2 w-100">
+                                <i class="bi bi-calendar-x me-1"></i> Fin: {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"d/m/Y" }}{% else %}Actualidad{% endif %}
+                            </span>
+                        </div>
+
+                        <div class="col-md-9">
+                            <div class="card-body">
+                                <h4 class="card-title fw-bold text-dark mb-1">{{ exp.cargodesempenado }}</h4>
+                                <h5 class="text-primary mb-3">{{ exp.nombrempresa }} <small class="text-muted fs-6">({{ exp.lugarempresa }})</small></h5>
+                                
+                                <p class="card-text mb-4" style="line-height: 1.6;">{{ exp.descripcionfunciones }}</p>
+
+                                <div class="row g-2 border-top pt-3">
+                                    <div class="col-sm-6">
+                                        <p class="mb-1 small"><strong><i class="bi bi-person-badge me-1"></i>Contacto:</strong> {{ exp.nombrecontactoempresarial }}</p>
+                                        <p class="mb-1 small"><strong><i class="bi bi-telephone me-1"></i>Teléfono:</strong> {{ exp.telefonocontactoempresarial }}</p>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <p class="mb-1 small"><strong><i class="bi bi-envelope me-1"></i>Email:</strong> {{ exp.emailempresa }}</p>
+                                        {% if exp.sitiowebempresa %}
+                                        <p class="mb-1 small"><strong><i class="bi bi-globe me-1"></i>Web:</strong> <a href="{{ exp.sitiowebempresa }}" target="_blank" class="text-decoration-none">{{ exp.sitiowebempresa }}</a></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if exp.rutacertificado or exp.url_certificado_externo %}
+                            <div class="card-footer bg-white border-0 text-end pb-3">
+                                <div class="d-inline-flex gap-2">
+                                    {% if exp.url_certificado_externo %}
+                                    <a href="{{ exp.url_certificado_externo }}" class="btn btn-sm btn-outline-secondary rounded-pill" target="_blank">
+                                        <i class="bi bi-link-45deg me-1"></i> Ver Certificado Online
+                                    </a>
+                                    {% endif %}
+
+                                    {% if exp.rutacertificado %}
+                                    <a href="{{ exp.rutacertificado.url }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank">
+                                        <i class="bi bi-file-earmark-pdf me-2"></i> Ver Certificado
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% empty %}
+                <div class="col-12 text-center py-5">
+                    <div class="card bg-light border-0 py-5">
+                        <i class="bi bi-briefcase text-muted fs-1"></i>
+                        <p class="mt-3 text-muted">No hay experiencias laborales registradas o activas.</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        background-color: #fff;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .text-primary {
+        color: #0d6efd !important;
+    }
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+    /* Estilo suave para los botones del footer */
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

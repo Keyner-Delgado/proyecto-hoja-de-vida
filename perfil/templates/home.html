@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - {{ perfil.nombres }} {{ perfil.apellidos }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4 text-center mb-4">
+            <div class="card shadow-sm border-0 p-4">
+                {% if perfil.foto_perfil %}
+                    <img src="{{ perfil.foto_perfil.url }}" class="rounded-circle img-thumbnail mx-auto mb-3" style="width: 180px; height: 180px; object-fit: cover;">
+                {% else %}
+                    <i class="bi bi-person-circle text-secondary" style="font-size: 150px;"></i>
+                {% endif %}
+                
+                <h3 class="fw-bold">{{ perfil.nombres }}</h3>
+                <h4 class="fw-bold">{{ perfil.apellidos }}</h4>
+                
+                <div class="mb-3">
+                    <span class="badge rounded-pill {% if perfil.perfilactivo == 1 %}bg-success{% else %}bg-secondary{% endif %} px-3 py-2" style="width: auto; display: inline-block;">
+                        {% if perfil.perfilactivo == 1 %}
+                            <i class="bi bi-check-circle-fill me-1"></i>Perfil Activo
+                        {% else %}
+                            <i class="bi bi-x-circle-fill me-1"></i>Inactivo
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <p class="text-center mt-3 fs-6 text-dark" style="line-height: 1.4;">
+                    {{ perfil.descripcionperfil }}
+                </p>
+
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{% url 'pdf_personales' %}" class="btn shadow-sm text-white" target="_blank" 
+                       style="background-color: #007bff; border-radius: 50px; border: none; font-weight: 500;">
+                        <i class="bi bi-file-earmark-pdf-fill me-2"></i>Descargar PDF
+                    </a>
+                    <small class="text-muted" style="font-size: 0.7rem;">Reporte de Información Personal</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 p-4">
+                <h2 class="border-bottom pb-2 mb-4"><i class="bi bi-file-earmark-person text-primary me-2"></i>Información Personal</h2>
+                
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Cédula de Identidad</label>
+                        <p class="fs-5"><i class="bi bi-card-heading text-primary me-2"></i>{{ perfil.numerocedula }}</p>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Nacionalidad</label>
+                        <p class="fs-5"><i class="bi bi-flag text-primary me-2"></i>{{ perfil.nacionalidad }}</p>
+                    </div>
+
+                    <div class="col-sm-6 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Fecha de Nacimiento</label>
+                        <p class="fs-5"><i class="bi bi-calendar3 text-primary me-2"></i>{{ perfil.fechanacimiento|date:"d \d\e F \d\e Y" }}</p>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Lugar de Nacimiento</label>
+                        <p class="fs-5"><i class="bi bi-geo text-primary me-2"></i>{{ perfil.lugarnacimiento }}</p>
+                    </div>
+
+                    <div class="col-sm-4 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Sexo</label>
+                        <p class="fs-5"><i class="bi bi-person-fill-gear text-primary me-2"></i>{% if perfil.sexo == 'H' %}Hombre{% elif perfil.sexo == 'M' %}Mujer{% else %}{{ perfil.sexo }}{% endif %}</p>
+                    </div>
+                    <div class="col-sm-4 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Estado Civil</label>
+                        <p class="fs-5"><i class="bi bi-people-fill text-primary me-2"></i>{{ perfil.estadocivil }}</p>
+                    </div>
+                    <div class="col-sm-4 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Licencia</label>
+                        <p class="fs-5"><i class="bi bi-person-badge text-primary me-2"></i>{{ perfil.licenciaconducir|default:"No posee" }}</p>
+                    </div>
+                </div>
+
+                <h2 class="border-bottom pb-2 mb-4 mt-4"><i class="bi bi-telephone text-primary me-2"></i>Contacto y Ubicación</h2>
+                
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Correo Electrónico</label>
+                        <p class="fs-5"><i class="bi bi-envelope text-primary me-2"></i>{{ perfil.correo }}</p>
+                    </div>
+
+                    <div class="col-sm-6 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Teléfono Convencional / Fijo</label>
+                        <p class="fs-5"><i class="bi bi-phone text-primary me-2"></i>{{ perfil.telefonoconvencional }} / {{ perfil.telefonofijo }}</p>
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Sitio Web</label>
+                        <p class="fs-5">
+                            <i class="bi bi-globe text-primary me-2"></i>
+                            <a href="{{ perfil.sitioweb }}" target="_blank" class="text-decoration-none">{{ perfil.sitioweb|default:"No registrado" }}</a>
+                        </p>
+                    </div>
+                    
+                    <div class="col-sm-6 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Dirección Domiciliaria</label>
+                        <p class="fs-5"><i class="bi bi-geo-alt text-primary me-2"></i>{{ perfil.direcciondomiciliaria }}</p>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <label class="text-uppercase fw-bold text-dark small">Dirección de Trabajo</label>
+                        <p class="fs-5"><i class="bi bi-building text-primary me-2"></i>{{ perfil.direcciontrabajo }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

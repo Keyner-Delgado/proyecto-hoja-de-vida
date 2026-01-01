@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Reconocimientos - {{ perfil.nombres }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark">
+            <i class="bi bi-stars text-primary me-2"></i>Reconocimientos
+        </h2>
+        <p class="text-muted">Logros y distinciones obtenidos a lo largo de la trayectoria.</p>
+
+        {% if reporte_premios %}
+            <div class="mt-4 mb-2">
+                <a href="{{ reporte_premios.archivo_pdf.url }}" class="btn btn-primary shadow-sm rounded-pill px-4" target="_blank">
+                    <i class="bi bi-file-earmark-pdf-fill me-2"></i>Descargar Reconocimientos
+                </a>
+            </div>
+        {% endif %}
+        <hr class="mx-auto" style="width: 50px; height: 3px; background-color: #0d6efd;">
+    </div>
+
+    <div class="row">
+        {% for logro in items %}
+            {% if logro.activarparaqueseveaenfront %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm border-0 border-top border-primary border-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge {% if logro.tiporeconocimiento == 'Académico' %}bg-primary{% elif logro.tiporeconocimiento == 'Público' %}bg-success{% else %}bg-info text-dark{% endif %}">
+                                {{ logro.tiporeconocimiento }}
+                            </span>
+                            <small class="text-muted fw-bold">
+                                <i class="bi bi-calendar3 me-1"></i> {{ logro.fechareconocimiento|date:"d/m/Y" }}
+                            </small>
+                        </div>
+
+                        <h5 class="card-title fw-bold mb-2 text-dark">{{ logro.descripcionreconocimiento }}</h5>
+                        <p class="text-primary mb-3 fw-semibold">
+                            <i class="bi bi-bank me-1"></i> {{ logro.entidadpatrocinadora }}
+                        </p>
+
+                        <hr>
+
+                        <div class="contact-info mt-3">
+                            <p class="mb-2 small">
+                                <i class="bi bi-person-badge me-2 text-dark"></i><strong>Contacto:</strong> {{ logro.nombrecontactoauspicia }}
+                            </p>
+                            <p class="mb-0 small">
+                                <i class="bi bi-telephone me-2 text-dark"></i><strong>Teléfono:</strong> {{ logro.telefonocontactoauspicia }}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if logro.rutacertificado or logro.url_certificado_externo %}
+                    <div class="card-footer bg-transparent border-0 pb-3">
+                        <div class="d-flex flex-column gap-2">
+                            
+                            {% if logro.rutacertificado %}
+                            <a href="{{ logro.rutacertificado.url }}" target="_blank" class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center fw-semibold rounded-pill">
+                                <i class="bi bi-file-earmark-pdf me-2"></i> Ver Certificado
+                            </a>
+                            {% endif %}
+
+                            {% if logro.url_certificado_externo %}
+                            <a href="{{ logro.url_certificado_externo }}" target="_blank" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center fw-semibold rounded-pill">
+                                <i class="bi bi-link-45deg me-2"></i> Ver Certificado Online
+                            </a>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="card bg-light border-0 py-5">
+                    <i class="bi bi-award text-muted fs-1"></i>
+                    <p class="mt-3 text-muted">Aún no se han registrado reconocimientos.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background-color: #fff;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+    }
+    
+    .bg-primary { background-color: #0d6efd !important; } 
+    .bg-success { background-color: #198754 !important; } 
+    .bg-info { background-color: #0dcaf0 !important; }
+
+    .contact-info i {
+        font-size: 1.1rem;
+        vertical-align: middle;
+    }
+
+    /* Estilo para el botón secundario (gris) resaltado */
+    .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #343a40; /* Gris oscuro para legibilidad */
+        border-width: 1px;
+    }
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: white !important;
+    }
+
+    /* Botón de PDF original */
+    .btn-outline-primary {
+        border-color: #0d6efd;
+        color: #0d6efd;
+        border-width: 1px;
+    }
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        color: white !important;
+    }
+
+    /* Uniformidad en botones */
+    .btn-sm {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+    .fw-semibold {
+        font-weight: 600 !important;
+    }
+</style>
+{% endblock %}
