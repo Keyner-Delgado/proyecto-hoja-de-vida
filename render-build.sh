@@ -11,10 +11,14 @@ python manage.py collectstatic --no-input
 # 3. Migraciones de base de datos
 python manage.py migrate
 
-# 4. CREAR SUPERUSUARIO FORZADO (Método Shell)
-echo "Forzando creación de superusuario..."
+# 4. ACTUALIZAR O CREAR SUPERUSUARIO (Sin borrar)
+echo "Configurando superusuario keyner..."
 echo "from django.contrib.auth import get_user_model; \
 User = get_user_model(); \
-User.objects.filter(username='keyner').delete(); \
-User.objects.create_superuser('keyner', 'keyner@gmail.com', '123')" \
+user, created = User.objects.get_or_create(username='keyner', defaults={'email': 'keyner@gmail.com'}); \
+user.set_password('123'); \
+user.is_superuser = True; \
+user.is_staff = True; \
+user.save(); \
+print('Superusuario keyner actualizado con éxito')" \
 | python manage.py shell
