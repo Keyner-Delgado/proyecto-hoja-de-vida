@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
-# Salir inmediatamente si ocurre un error
+# Salir si hay un error
 set -o errexit
 
-# 1. Instalar todas las librerías de tu requirements.txt
+# 1. Instalar librerías
 pip install -r requirements.txt
 
-# 2. Recolectar archivos estáticos (CSS, JS) usando Whitenoise
-# Esto los guardará en la carpeta 'staticfiles' que configuramos
+# 2. Archivos estáticos
 python manage.py collectstatic --no-input
 
-# 3. Aplicar migraciones a la base de datos PostgreSQL de Render
+# 3. Migraciones de base de datos
 python manage.py migrate
 
-# CREAR SUPERUSUARIO AUTOMÁTICO
-if [ "$DJANGO_SUPERUSER_USERNAME" ]; then
-  echo "Creando superusuario..."
-  python manage.py createsuperuser \
-    --no-input \
-    --username $DJANGO_SUPERUSER_USERNAME \
-    --email $DJANGO_SUPERUSER_EMAIL || true
-fi
+# 4. CREAR SUPERUSUARIO FORZADO (Método Shell)
+echo "Forzando creación de superusuario..."
+echo "from django.contrib.auth import get_user_model; \
+User = get_user_model(); \
+User.objects.filter(username='keyner').delete(); \
+User.objects.create_superuser('keyner', 'keyner@gmail.com', '123')" \
+| python manage.py shell
