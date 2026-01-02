@@ -83,22 +83,19 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- CONFIGURACIÓN FINAL DE ALMACENAMIENTO ---
-# Volvemos a CompressedManifest para que el Admin tenga estilos, 
-# pero con la bandera STRICT en False para evitar errores de Build.
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# --- CONFIGURACIÓN DE ALMACENAMIENTO PARA RENDER (CORREGIDO) ---
+# Usamos CompressedStaticFilesStorage para evitar el error "MissingFileError" 
+# con los iconos del modo oscuro (dark_mode.css) en Render.
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
-
-# Esta línea es la que evita que el build falle por iconos del admin faltantes
-WHITENOISE_MANIFEST_STRICT = False
 
 # 8. CLOUDINARY
 CLOUDINARY_STORAGE = {
