@@ -6,12 +6,12 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2. SEGURIDAD
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-x*tkgaz^&u8$jpjokgx1rl&6zj-)1x&9fvygtbhtdqhp=ft7(@')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-aqui')
 
 # DEBUG será True en tu PC y False en Render
 DEBUG = 'RENDER' not in os.environ
 
-# Configuración de Hosts más robusta
+# Configuración de Hosts
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 render_external_url = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_url:
@@ -19,13 +19,13 @@ if render_external_url:
 
 # 3. APLICACIONES INSTALADAS
 INSTALLED_APPS = [
-    'django.contrib.staticfiles',  # Súbelo aquí
-    'cloudinary_storage',
+    'cloudinary_storage', # Debe ir antes de staticfiles para media
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.staticfiles', 
     'cloudinary',
     'perfil',
 ]
@@ -33,7 +33,7 @@ INSTALLED_APPS = [
 # 4. MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Vital para archivos estáticos en Render
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Vital para el PDF en Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,21 +69,13 @@ DATABASES = {
     )
 }
 
-# 6. VALIDACIÓN DE CONTRASEÑAS
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
-
-# 7. INTERNACIONALIZACIÓN (Configurado para Ecuador)
+# 6. INTERNACIONALIZACIÓN
 LANGUAGE_CODE = 'es-ec'
 TIME_ZONE = 'America/Guayaquil'
 USE_I18N = True
 USE_TZ = True
 
-# 8. ARCHIVOS ESTÁTICOS
+# 7. ARCHIVOS ESTÁTICOS Y MEDIA (CONFIGURACIÓN DJANGO 6.0)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -91,10 +83,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# ESTA ES LA CLAVE PARA DJANGO 6.0
-# Aunque Django 6 no la usa, Cloudinary la busca para no romperse.
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+# Eliminamos DEFAULT_FILE_STORAGE y STATICFILES_STORAGE antiguos 
+# En Django 6 se usa exclusivamente el diccionario STORAGES:
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -104,9 +94,7 @@ STORAGES = {
     },
 }
 
-# 9. ARCHIVOS MEDIA (Cloudinary)
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
+# 8. CLOUDINARY
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),

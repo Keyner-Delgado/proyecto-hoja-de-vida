@@ -2,20 +2,26 @@
 <html>
 <head>
     <style>
+        /* Configuraciones de página para xhtml2pdf */
         @page { size: letter; margin: 1.5cm; }
         body { font-family: Helvetica, sans-serif; color: #333; line-height: 1.2; }
+        
         .header { width: 100%; border-bottom: 2px solid #004085; padding-bottom: 10px; margin-bottom: 20px; }
         .name { font-size: 26pt; font-weight: bold; text-transform: uppercase; color: #004085; }
+        
         .section-title { font-weight: bold; text-transform: uppercase; font-size: 12pt; margin-top: 25px; color: #004085; border-bottom: 1px solid #004085; padding-bottom: 3px; }
+        
         .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .label { font-weight: bold; font-size: 9pt; color: #333; width: 35%; padding: 4px 0; }
         .value { font-size: 10pt; padding: 4px 0; }
+        
         .exp-container { margin-top: 15px; padding-bottom: 10px; }
         .job-title { font-weight: bold; font-size: 11pt; color: #333; }
         .company-info { font-weight: bold; font-size: 10pt; color: #004085; margin-top: 2px; }
         .date-location { font-size: 9pt; color: #666; font-style: italic; margin-top: 2px; }
         .exp-desc { font-size: 10pt; margin-top: 8px; text-align: justify; line-height: 1.4; }
-        .photo { width: 100px; height: auto; }
+        
+        .photo { width: 100px; height: auto; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -26,7 +32,9 @@
                 <div style="margin-top: 5px; font-size: 10pt; color: #333;">{{ perfil.correo }}</div>
             </td>
             <td width="25%" style="text-align: right;">
-                {% if perfil.foto_perfil %}<img src="{{ perfil.foto_perfil.path }}" class="photo">{% endif %}
+                {% if perfil.foto_perfil %}
+                    <img src="{{ perfil.foto_perfil.url }}" class="photo">
+                {% endif %}
             </td>
         </tr>
     </table>
@@ -42,77 +50,76 @@
         <tr><td class="label">Lugar de Nacimiento:</td><td class="value">{{ perfil.lugarnacimiento }}</td></tr>
         <tr><td class="label">Sexo:</td><td class="value">{% if perfil.sexo == 'H' %}Hombre{% else %}Mujer{% endif %}</td></tr>
         <tr><td class="label">Estado Civil:</td><td class="value">{{ perfil.estadocivil }}</td></tr>
-        <tr><td class="label">Teléfono Convencional:</td><td class="value">{{ perfil.telefonoconvencional|default:"N/A" }}</td></tr>
-        <tr><td class="label">Teléfono Fijo:</td><td class="value">{{ perfil.telefonofijo|default:"N/A" }}</td></tr>
         <tr><td class="label">Sitio Web:</td><td class="value">{{ perfil.sitioweb|default:"N/A" }}</td></tr>
-        <tr><td class="label">Dirección Domiciliaria:</td><td class="value">{{ perfil.direcciondomiciliaria }}</td></tr>
-        {% if perfil.direcciontrabajo %}<tr><td class="label">Dirección de Trabajo:</td><td class="value">{{ perfil.direcciontrabajo }}</td></tr>{% endif %}
-        <tr><td class="label">Licencia de Conducir:</td><td class="value">{{ perfil.licenciaconducir|default:"No posee" }}</td></tr>
+        <tr><td class="label">Dirección:</td><td class="value">{{ perfil.direcciondomiciliaria }}</td></tr>
     </table>
 
     <div class="section-title">Experiencia Laboral</div>
-    {% for exp in items %}{% if exp.activarparaqueseveaenfront %}
-    <div class="exp-container">
-        <div class="job-title">{{ exp.cargodesempenado }}</div>
-        <div class="company-info">{{ exp.nombrempresa }} — {{ exp.lugarempresa }}</div>
-        <div class="date-location">Desde: {{ exp.fechainiciogestion|date:"d/m/Y" }} — Hasta: {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"d/m/Y" }}{% else %}Actualidad{% endif %}</div>
-        <div class="exp-desc">{{ exp.descripcionfunciones }}</div>
-        <table class="data-table">
-            <tr><td class="label">Nombre de Contacto:</td><td class="value">{{ exp.nombrecontactoempresarial }}</td></tr>
-            <tr><td class="label">Teléfono de Contacto:</td><td class="value">{{ exp.telefonocontactoempresarial }}</td></tr>
-            {% if exp.emailempresa %}<tr><td class="label">Email Empresa:</td><td class="value">{{ exp.emailempresa }}</td></tr>{% endif %}
-            {% if exp.sitiowebempresa %}<tr><td class="label">Web Empresa:</td><td class="value">{{ exp.sitiowebempresa }}</td></tr>{% endif %}
-        </table>
-    </div>
-    {% endif %}{% empty %}<div class="exp-desc">No hay experiencias laborales registradas.</div>{% endfor %}
+    {% for exp in items %}
+        {% if exp.activarparaqueseveaenfront %}
+        <div class="exp-container">
+            <div class="job-title">{{ exp.cargodesempenado }}</div>
+            <div class="company-info">{{ exp.nombrempresa }} — {{ exp.lugarempresa }}</div>
+            <div class="date-location">Desde: {{ exp.fechainiciogestion|date:"d/m/Y" }} — Hasta: {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"d/m/Y" }}{% else %}Actualidad{% endif %}</div>
+            <div class="exp-desc">{{ exp.descripcionfunciones }}</div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <div class="exp-desc">No hay experiencias laborales registradas.</div>
+    {% endfor %}
 
     <div class="section-title">Reconocimientos</div>
-    {% for rec in reconocimientos %}{% if rec.activarparaqueseveaenfront %}
-    <div class="exp-container">
-        <div class="job-title">{{ rec.tiporeconocimiento }}</div>
-        <div class="company-info">{{ rec.entidadpatrocinadora }}</div>
-        <div class="date-location">Fecha: {{ rec.fechareconocimiento|date:"d/m/Y" }}</div>
-        <div class="exp-desc">{{ rec.descripcionreconocimiento }}</div>
-        <table class="data-table">
-            <tr><td class="label">Nombre de Contacto:</td><td class="value">{{ rec.nombrecontactoauspicia }}</td></tr>
-            <tr><td class="label">Teléfono Contacto:</td><td class="value">{{ rec.telefonocontactoauspicia }}</td></tr>
-        </table>
-    </div>
-    {% endif %}{% empty %}<div class="exp-desc">No hay reconocimientos registrados.</div>{% endfor %}
+    {% for rec in reconocimientos %}
+        {% if rec.activarparaqueseveaenfront %}
+        <div class="exp-container">
+            <div class="job-title">{{ rec.tiporeconocimiento }}</div>
+            <div class="company-info">{{ rec.entidadpatrocinadora }}</div>
+            <div class="date-location">Fecha: {{ rec.fechareconocimiento|date:"d/m/Y" }}</div>
+            <div class="exp-desc">{{ rec.descripcionreconocimiento }}</div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <div class="exp-desc">No hay reconocimientos registrados.</div>
+    {% endfor %}
 
     <div class="section-title">Cursos Realizados</div>
-    {% for curso in cursos %}{% if curso.activarparaqueseveaenfront %}
-    <div class="exp-container">
-        <div class="job-title">{{ curso.nombrecurso }}</div>
-        <div class="company-info">{{ curso.entidadpatrocinadora }}</div>
-        <div class="date-location">Desde: {{ curso.fechainicio|date:"d/m/Y" }} — Hasta: {{ curso.fechafin|date:"d/m/Y" }}</div>
-        <div class="exp-desc">{{ curso.descripcioncurso }}</div>
-        <table class="data-table">
-            <tr><td class="label">Total de Horas:</td><td class="value">{{ curso.totalhoras }} horas</td></tr>
-            <tr><td class="label">Contacto Auspiciante:</td><td class="value">{{ curso.nombrecontactoauspicia }}</td></tr>
-            <tr><td class="label">Teléfono Contacto:</td><td class="value">{{ curso.telefonocontactoauspicia }}</td></tr>
-            {% if curso.emailempresapatrocinadora %}<tr><td class="label">Email Empresa:</td><td class="value">{{ curso.emailempresapatrocinadora }}</td></tr>{% endif %}
-        </table>
-    </div>
-    {% endif %}{% empty %}<div class="exp-desc">No hay cursos registrados.</div>{% endfor %}
+    {% for curso in cursos %}
+        {% if curso.activarparaqueseveaenfront %}
+        <div class="exp-container">
+            <div class="job-title">{{ curso.nombrecurso }}</div>
+            <div class="company-info">{{ curso.entidadpatrocinadora }}</div>
+            <div class="date-location">Desde: {{ curso.fechainicio|date:"d/m/Y" }} — Hasta: {{ curso.fechafin|date:"d/m/Y" }}</div>
+            <div class="exp-desc">{{ curso.descripcioncurso }} ({{ curso.totalhoras }} horas)</div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <div class="exp-desc">No hay cursos registrados.</div>
+    {% endfor %}
 
     <div class="section-title">Productos Académicos</div>
-    {% for prod in productos %}{% if prod.activarparaqueseveaenfront %}
-    <div class="exp-container">
-        <div class="job-title">{{ prod.nombrerecurso }}</div>
-        <div class="company-info">{{ prod.clasificador }}</div>
-        <div class="exp-desc">{{ prod.descripcion }}</div>
-        {% if prod.institucion %}<table class="data-table"><tr><td class="label">Institución o Editorial:</td><td class="value">{{ prod.institucion }}</td></tr></table>{% endif %}
-    </div>
-    {% endif %}{% empty %}<div class="exp-desc">No hay productos académicos registrados.</div>{% endfor %}
+    {% for prod in productos %}
+        {% if prod.activarparaqueseveaenfront %}
+        <div class="exp-container">
+            <div class="job-title">{{ prod.nombrerecurso }}</div>
+            <div class="company-info">{{ prod.clasificador }}</div>
+            <div class="exp-desc">{{ prod.descripcion }}</div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <div class="exp-desc">No hay productos académicos registrados.</div>
+    {% endfor %}
 
     <div class="section-title">Productos Laborales</div>
-    {% for pl in productos_laborales %}{% if pl.activarparaqueseveaenfront %}
-    <div class="exp-container">
-        <div class="job-title">{{ pl.nombreproducto }}</div>
-        <div class="date-location">Fecha: {{ pl.fechaproducto|date:"d/m/Y" }}</div>
-        <div class="exp-desc">{{ pl.descripcion }}</div>
-    </div>
-    {% endif %}{% empty %}<div class="exp-desc">No hay productos laborales registrados.</div>{% endfor %}
+    {% for pl in productos_laborales %}
+        {% if pl.activarparaqueseveaenfront %}
+        <div class="exp-container">
+            <div class="job-title">{{ pl.nombreproducto }}</div>
+            <div class="date-location">Fecha: {{ pl.fechaproducto|date:"d/m/Y" }}</div>
+            <div class="exp-desc">{{ pl.descripcion }}</div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <div class="exp-desc">No hay productos laborales registrados.</div>
+    {% endfor %}
 </body>
 </html>
