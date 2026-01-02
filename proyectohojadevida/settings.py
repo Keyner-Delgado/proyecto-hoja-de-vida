@@ -33,7 +33,7 @@ INSTALLED_APPS = [
 # 4. MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Vital para el PDF en Render
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Vital para servir estáticos en Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -83,18 +83,22 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- PARCHE DE COMPATIBILIDAD Y ESTABILIDAD ---
-# Usamos StaticFilesStorage para evitar errores de archivos no encontrados durante el build
-STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+# --- CONFIGURACIÓN FINAL DE ALMACENAMIENTO ---
+# Volvemos a CompressedManifest para que el Admin tenga estilos, 
+# pero con la bandera STRICT en False para evitar errores de Build.
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# Esta línea es la que evita que el build falle por iconos del admin faltantes
+WHITENOISE_MANIFEST_STRICT = False
 
 # 8. CLOUDINARY
 CLOUDINARY_STORAGE = {

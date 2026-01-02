@@ -48,10 +48,15 @@
         <tr><td class="label">Nacionalidad:</td><td class="value">{{ perfil.nacionalidad }}</td></tr>
         <tr><td class="label">Fecha de Nacimiento:</td><td class="value">{{ perfil.fechanacimiento|date:"d/m/Y" }}</td></tr>
         <tr><td class="label">Lugar de Nacimiento:</td><td class="value">{{ perfil.lugarnacimiento }}</td></tr>
-        <tr><td class="label">Sexo:</td><td class="value">{% if perfil.sexo == 'H' %}Hombre{% else %}Mujer{% endif %}</td></tr>
+        <tr><td class="label">Sexo:</td><td class="value">{% if perfil.sexo == 'H' %}Hombre{% elif perfil.sexo == 'M' %}Mujer{% else %}{{ perfil.sexo }}{% endif %}</td></tr>
         <tr><td class="label">Estado Civil:</td><td class="value">{{ perfil.estadocivil }}</td></tr>
-        <tr><td class="label">Sitio Web:</td><td class="value">{{ perfil.sitioweb|default:"N/A" }}</td></tr>
-        <tr><td class="label">Dirección:</td><td class="value">{{ perfil.direcciondomiciliaria }}</td></tr>
+        
+        <tr><td class="label">Teléfono Convencional:</td><td class="value">{{ perfil.telefonoconvencional|default:"N/A" }}</td></tr>
+        <tr><td class="label">Teléfono Fijo / Celular:</td><td class="value">{{ perfil.telefonofijo|default:"N/A" }}</td></tr>
+        <tr><td class="label">Dirección Domiciliaria:</td><td class="value">{{ perfil.direcciondomiciliaria }}</td></tr>
+        <tr><td class="label">Dirección de Trabajo:</td><td class="value">{{ perfil.direcciontrabajo|default:"N/A" }}</td></tr>
+        <tr><td class="label">Sitio Web:</td><td class="value">{{ perfil.sitioweb|default:"No registrado" }}</td></tr>
+        <tr><td class="label">Licencia de Conducir:</td><td class="value">{{ perfil.licenciaconducir|default:"No posee" }}</td></tr>
     </table>
 
     <div class="section-title">Experiencia Laboral</div>
