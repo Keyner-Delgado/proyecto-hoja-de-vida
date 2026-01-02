@@ -2,14 +2,15 @@
 # Salir si hay un error
 set -o errexit
 
-# --- NUEVO: Limpiar estáticos previos para evitar errores de WhiteNoise ---
+# --- Limpiar estáticos previos para evitar errores de WhiteNoise ---
 rm -rf staticfiles
 
 # 1. Instalar librerías
 pip install -r requirements.txt
 
 # 2. Archivos estáticos
-python manage.py collectstatic --no-input
+# Añadimos --clear para asegurar que los estilos del admin se regeneren correctamente
+python manage.py collectstatic --no-input --clear
 
 # 3. Migraciones de base de datos
 python manage.py migrate
