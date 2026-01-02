@@ -8,10 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 2. SEGURIDAD
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-aqui')
 
-# DEBUG será True en tu PC y False en Render
 DEBUG = 'RENDER' not in os.environ
 
-# Configuración de Hosts
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 render_external_url = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_url:
@@ -19,7 +17,7 @@ if render_external_url:
 
 # 3. APLICACIONES INSTALADAS
 INSTALLED_APPS = [
-    'cloudinary_storage', # Debe ir antes de staticfiles para media
+    'cloudinary_storage', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -33,7 +31,7 @@ INSTALLED_APPS = [
 # 4. MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Vital para servir estáticos en Render
+    'whitenoise.middleware.WhiteNoiseMiddleware', # DEBE estar justo debajo de SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,7 +73,7 @@ TIME_ZONE = 'America/Guayaquil'
 USE_I18N = True
 USE_TZ = True
 
-# 7. ARCHIVOS ESTÁTICOS Y MEDIA (CONFIGURACIÓN DJANGO 6.0)
+# 7. ARCHIVOS ESTÁTICOS Y MEDIA
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -83,9 +81,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- CONFIGURACIÓN DE ALMACENAMIENTO (SOLUCIÓN FINAL A FILENOTFOUNDERROR) ---
-# Cambiamos a StaticFilesStorage estándar. WhiteNoise seguirá sirviendo los archivos
-# pero sin intentar comprimirlos o buscar manifiestos, evitando errores en el Build.
+# --- CONFIGURACIÓN DE ALMACENAMIENTO (AJUSTADA PARA ADMIN) ---
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 STORAGES = {
@@ -96,6 +92,12 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+
+# --- NUEVOS AJUSTES PARA SOLUCIONAR EL DISEÑO DEL ADMIN ---
+# Forzar a WhiteNoise a buscar los archivos del Admin en los directorios de las apps
+WHITENOISE_USE_FINDERS = True
+# Evitar problemas con el protocolo (HTTP/HTTPS) en los archivos estáticos
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # 8. CLOUDINARY
 CLOUDINARY_STORAGE = {
