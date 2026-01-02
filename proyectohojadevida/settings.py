@@ -83,17 +83,17 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- CONFIGURACIÓN DE ALMACENAMIENTO PARA RENDER (CORREGIDO) ---
-# Usamos CompressedStaticFilesStorage para evitar el error "MissingFileError" 
-# con los iconos del modo oscuro (dark_mode.css) en Render.
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# --- CONFIGURACIÓN DE ALMACENAMIENTO (SOLUCIÓN FINAL A FILENOTFOUNDERROR) ---
+# Cambiamos a StaticFilesStorage estándar. WhiteNoise seguirá sirviendo los archivos
+# pero sin intentar comprimirlos o buscar manifiestos, evitando errores en el Build.
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 

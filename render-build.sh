@@ -2,6 +2,9 @@
 # Salir si hay un error
 set -o errexit
 
+# --- NUEVO: Limpiar estáticos previos para evitar errores de WhiteNoise ---
+rm -rf staticfiles
+
 # 1. Instalar librerías
 pip install -r requirements.txt
 
