@@ -5,7 +5,7 @@ class DatosPersonales(models.Model):
     SEXO_CHOICES = [('H', 'Hombre'), ('M', 'Mujer')]
 
     idperfil = models.AutoField(primary_key=True)
-    descripcionperfil = models.CharField(max_length=50, null=True, blank=True, verbose_name="Descripción del Perfil")
+    descripcionperfil = models.CharField(max_length=200, null=True, blank=True, verbose_name="Descripción del Perfil")
     perfilactivo = models.IntegerField(
     default=1,
     choices=[(1, '1 (Activo)'), (0, '0 (Inactivo)')], # Crea un menú desplegable con los números
@@ -28,7 +28,7 @@ class DatosPersonales(models.Model):
     telefonofijo = models.CharField(max_length=15, null=True, blank=True, verbose_name="Teléfono Fijo")
     direcciontrabajo = models.CharField(max_length=50, null=True, blank=True, verbose_name="Dirección de Trabajo")
     direcciondomiciliaria = models.CharField(max_length=50, null=True, blank=True, verbose_name="Dirección Domiciliaria")
-    sitioweb = models.CharField(max_length=60, null=True, blank=True, verbose_name="Sitio Web")
+    sitioweb = models.CharField(max_length=150, null=True, blank=True, verbose_name="Sitio Web")
     correo = models.EmailField(max_length=100, unique=True, verbose_name="Correo Electrónico")
     foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name="Foto de Perfil")
 
@@ -42,16 +42,16 @@ class DatosPersonales(models.Model):
 class ExperienciaLaboral(models.Model):
     idexperiencialaboral = models.AutoField(primary_key=True)
     idperfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE, db_column='idperfilconqueestaactivo', verbose_name="Perfil")
-    cargodesempenado = models.CharField(max_length=100, verbose_name="Cargo Desempeñado")
+    cargodesempenado = models.CharField(max_length=250, verbose_name="Cargo Desempeñado")
     nombrempresa = models.CharField(max_length=50, verbose_name="Nombre de la Empresa")
     lugarempresa = models.CharField(max_length=50, verbose_name="Ciudad/Lugar")
     emailempresa = models.EmailField(max_length=100, verbose_name="Email de la Empresa")
-    sitiowebempresa = models.CharField(max_length=100, null=True, blank=True, verbose_name="Web de la Empresa")
+    sitiowebempresa = models.CharField(max_length=150, null=True, blank=True, verbose_name="Web de la Empresa")
     nombrecontactoempresarial = models.CharField(max_length=100, verbose_name="Nombre de Contacto")
     telefonocontactoempresarial = models.CharField(max_length=60, verbose_name="Teléfono de Contacto")
     fechainiciogestion = models.DateField(verbose_name="Fecha de Inicio")
     fechafingestion = models.DateField(null=True, blank=True, verbose_name="Fecha de Fin")
-    descripcionfunciones = models.CharField(max_length=100, verbose_name="Descripción de Funciones")
+    descripcionfunciones = models.CharField(max_length=250, verbose_name="Descripción de Funciones")
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Mostrar en la Web")
     rutacertificado = models.FileField(
         upload_to='certificados/experiencia/', 
@@ -77,7 +77,7 @@ class CursosRealizados(models.Model):
     fechainicio = models.DateField(verbose_name="Fecha Inicio")
     fechafin = models.DateField(verbose_name="Fecha Fin")
     totalhoras = models.IntegerField(verbose_name="Total de Horas")
-    descripcioncurso = models.CharField(max_length=100, verbose_name="Descripción")
+    descripcioncurso = models.CharField(max_length=250, verbose_name="Descripción")
     entidadpatrocinadora = models.CharField(max_length=100, verbose_name="Entidad Patrocinadora")
     nombrecontactoauspicia = models.CharField(max_length=100, verbose_name="Contacto Auspiciante")
     telefonocontactoauspicia = models.CharField(max_length=60, verbose_name="Teléfono Contacto")
@@ -105,7 +105,7 @@ class ProductosAcademicos(models.Model):
     idperfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE, db_column='idperfilconqueestaactivo', verbose_name="Perfil")
     nombrerecurso = models.CharField(max_length=100, verbose_name="Nombre del Recurso")
     clasificador = models.CharField(max_length=100, verbose_name="Tipo (Clasificador)")
-    descripcion = models.CharField(max_length=100, verbose_name="Descripción")
+    descripcion = models.CharField(max_length=250, verbose_name="Descripción")
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Mostrar en Web")
 
     class Meta:
@@ -117,7 +117,7 @@ class ProductosLaborales(models.Model):
     idperfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE, db_column='idperfilconqueestaactivo', verbose_name="Perfil")
     nombreproducto = models.CharField(max_length=100, verbose_name="Nombre del Producto")
     fechaproducto = models.DateField(verbose_name="Fecha de Producto")
-    descripcion = models.CharField(max_length=100, verbose_name="Descripción")
+    descripcion = models.CharField(max_length=250, verbose_name="Descripción")
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Mostrar en Web")
 
     class Meta:
@@ -130,7 +130,7 @@ class Reconocimientos(models.Model):
     idperfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE, db_column='idperfilconqueestaactivo', verbose_name="Perfil")
     tiporeconocimiento = models.CharField(max_length=100, choices=TIPO_CHOICES, verbose_name="Tipo de reconocimiento")
     fechareconocimiento = models.DateField(verbose_name="Fecha del reconocimiento")
-    descripcionreconocimiento = models.CharField(max_length=100, verbose_name="Descripción")
+    descripcionreconocimiento = models.CharField(max_length=250, verbose_name="Descripción")
     entidadpatrocinadora = models.CharField(max_length=100, verbose_name="Entidad Patrocinadora")
     nombrecontactoauspicia = models.CharField(max_length=100, verbose_name="Nombre de Contacto")
     telefonocontactoauspicia = models.CharField(max_length=60, verbose_name="Teléfono Contacto")
@@ -158,7 +158,7 @@ class VentaGarage(models.Model):
     idperfil = models.ForeignKey(DatosPersonales, on_delete=models.CASCADE, db_column='idperfilconqueestaactivo', verbose_name="Perfil")
     nombreproducto = models.CharField(max_length=100, verbose_name="Nombre del producto")
     estadoproducto = models.CharField(max_length=40, choices=ESTADO_CHOICES, verbose_name="Estado del producto")
-    descripcion = models.CharField(max_length=100, verbose_name="Descripción")
+    descripcion = models.CharField(max_length=250, verbose_name="Descripción")
     valordelbien = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Valor ($)")
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Mostrar en Web")
     fotoproducto = models.ImageField(upload_to='garage/', null=True, blank=True, verbose_name="Foto del Producto")
