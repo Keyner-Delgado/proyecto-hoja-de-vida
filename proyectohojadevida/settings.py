@@ -83,8 +83,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# Eliminamos DEFAULT_FILE_STORAGE y STATICFILES_STORAGE antiguos 
-# En Django 6 se usa exclusivamente el diccionario STORAGES:
+# --- PARCHE DE COMPATIBILIDAD PARA CLOUDINARY ---
+# Esta línea evita el AttributeError durante collectstatic en Render
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
