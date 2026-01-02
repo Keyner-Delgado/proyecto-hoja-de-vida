@@ -83,16 +83,16 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- PARCHE DE COMPATIBILIDAD PARA CLOUDINARY ---
-# Esta línea evita el AttributeError durante collectstatic en Render
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# --- PARCHE DE COMPATIBILIDAD Y FLEXIBILIDAD PARA WHITENOISE ---
+# Cambiamos a CompressedStaticFilesStorage para que no falle si faltan archivos en el CSS (como iconos de dark mode)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
