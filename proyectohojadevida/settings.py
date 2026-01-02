@@ -83,16 +83,16 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- PARCHE DE COMPATIBILIDAD Y FLEXIBILIDAD PARA WHITENOISE ---
-# Cambiamos a CompressedStaticFilesStorage para que no falle si faltan archivos en el CSS (como iconos de dark mode)
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# --- PARCHE DE COMPATIBILIDAD Y ESTABILIDAD ---
+# Usamos StaticFilesStorage para evitar errores de archivos no encontrados durante el build
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 
