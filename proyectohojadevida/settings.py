@@ -81,8 +81,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- CONFIGURACIÓN DE ALMACENAMIENTO UNIFICADA ---
-# Hemos eliminado la línea STATICFILES_STORAGE suelta para evitar el Error 500
+# --- CONFIGURACIÓN DE ALMACENAMIENTO (COMPATIBILIDAD CON CLOUDINARY Y WHITENOISE) ---
+# Esta línea es necesaria para evitar el AttributeError que viste en Render
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
