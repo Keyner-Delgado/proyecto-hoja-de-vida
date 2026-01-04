@@ -81,16 +81,16 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- CONFIGURACIÓN DE ALMACENAMIENTO (COMPATIBILIDAD CON CLOUDINARY Y WHITENOISE) ---
-# Esta línea es necesaria para evitar el AttributeError que viste en Render
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# --- CONFIGURACIÓN DE ALMACENAMIENTO (SOLUCIÓN A MISSINGFILEERROR) ---
+# Usamos CompressedStaticFilesStorage para que el build no falle por iconos faltantes
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
