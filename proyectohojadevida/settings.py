@@ -81,22 +81,19 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- CONFIGURACIÓN DE ALMACENAMIENTO (AJUSTADA PARA ADMIN) ---
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
+# --- CONFIGURACIÓN DE ALMACENAMIENTO UNIFICADA ---
+# Hemos eliminado la línea STATICFILES_STORAGE suelta para evitar el Error 500
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
-# --- NUEVOS AJUSTES PARA SOLUCIONAR EL DISEÑO DEL ADMIN ---
-# Forzar a WhiteNoise a buscar los archivos del Admin en los directorios de las apps
+# Ajustes para diseño del Admin y seguridad en Render
 WHITENOISE_USE_FINDERS = True
-# Evitar problemas con el protocolo (HTTP/HTTPS) en los archivos estáticos
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # 8. CLOUDINARY
