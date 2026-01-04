@@ -31,7 +31,7 @@ INSTALLED_APPS = [
 # 4. MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # DEBE estar justo debajo de SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -81,20 +81,20 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# --- CONFIGURACIÓN DE ALMACENAMIENTO (SOLUCIÓN A MISSINGFILEERROR) ---
-# Usamos CompressedStaticFilesStorage para que el build no falle por iconos faltantes
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# --- CONFIGURACIÓN DE ALMACENAMIENTO SEGURA (MODO BÁSICO) ---
+# Usamos el almacenamiento estándar de Django para estáticos para evitar errores en el Build
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
-# Ajustes para diseño del Admin y seguridad en Render
+# WhiteNoise servirá los archivos pero sin procesarlos (evita FileNotFoundError)
 WHITENOISE_USE_FINDERS = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
