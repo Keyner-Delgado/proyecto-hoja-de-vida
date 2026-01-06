@@ -99,12 +99,13 @@ def pdf_datos_personales(request):
     # Obtenemos el perfil activo
     perfil = get_object_or_404(DatosPersonales, perfilactivo=1)
     
-    # Consultas para el CV y anexos
-    experiencias = ExperienciaLaboral.objects.filter(idperfil=perfil)
-    productos_academicos = ProductosAcademicos.objects.filter(idperfil=perfil)
-    productos_laborales = ProductosLaborales.objects.filter(idperfil=perfil)
-    cursos_objs = CursosRealizados.objects.filter(idperfil=perfil)
-    reconocimientos_objs = Reconocimientos.objects.filter(idperfil=perfil)
+    # --- CONSULTAS FILTRADAS POR ACTIVACIÓN ---
+    # Solo traeremos lo que tenga el check 'activarparaqueseveaenfront=True'
+    experiencias = ExperienciaLaboral.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
+    productos_academicos = ProductosAcademicos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
+    productos_laborales = ProductosLaborales.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
+    cursos_objs = CursosRealizados.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
+    reconocimientos_objs = Reconocimientos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
     
     # --- PARTE A: GENERAR EL CV BASE (xhtml2pdf) ---
     template = get_template('reportes/pdf_personales.html')
@@ -129,7 +130,7 @@ def pdf_datos_personales(request):
     buffer_cv_base.seek(0)
     writer.append(buffer_cv_base)
 
-    # 1. Anexar Cursos
+    # 1. Anexar Cursos (Solo los activos)
     cursos_con_pdf = [c for c in cursos_objs if c.rutacertificado]
     if cursos_con_pdf:
         writer.append(crear_caratula("Certificados de Cursos"))
@@ -141,7 +142,7 @@ def pdf_datos_personales(request):
             except Exception as e:
                 print(f"Error al descargar curso: {e}")
 
-    # 2. Anexar Reconocimientos
+    # 2. Anexar Reconocimientos (Solo los activos)
     reco_con_pdf = [r for r in reconocimientos_objs if r.rutacertificado]
     if reco_con_pdf:
         writer.append(crear_caratula("Reconocimientos"))
