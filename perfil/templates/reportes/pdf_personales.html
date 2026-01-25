@@ -59,6 +59,7 @@
         <tr><td class="label">Licencia de Conducir:</td><td class="value">{{ perfil.licenciaconducir|default:"No posee" }}</td></tr>
     </table>
 
+    {% if items %}
     <div class="section-title">Experiencia Laboral</div>
     {% for exp in items %}
         {% if exp.activarparaqueseveaenfront %}
@@ -69,10 +70,10 @@
             <div class="exp-desc">{{ exp.descripcionfunciones }}</div>
         </div>
         {% endif %}
-    {% empty %}
-        <div class="exp-desc">No hay experiencias laborales registradas.</div>
     {% endfor %}
+    {% endif %}
 
+    {% if reconocimientos %}
     <div class="section-title">Reconocimientos</div>
     {% for rec in reconocimientos %}
         {% if rec.activarparaqueseveaenfront %}
@@ -83,10 +84,10 @@
             <div class="exp-desc">{{ rec.descripcionreconocimiento }}</div>
         </div>
         {% endif %}
-    {% empty %}
-        <div class="exp-desc">No hay reconocimientos registrados.</div>
     {% endfor %}
+    {% endif %}
 
+    {% if cursos %}
     <div class="section-title">Cursos Realizados</div>
     {% for curso in cursos %}
         {% if curso.activarparaqueseveaenfront %}
@@ -97,10 +98,10 @@
             <div class="exp-desc">{{ curso.descripcioncurso }} ({{ curso.totalhoras }} horas)</div>
         </div>
         {% endif %}
-    {% empty %}
-        <div class="exp-desc">No hay cursos registrados.</div>
     {% endfor %}
+    {% endif %}
 
+    {% if productos %}
     <div class="section-title">Productos Académicos</div>
     {% for prod in productos %}
         {% if prod.activarparaqueseveaenfront %}
@@ -110,10 +111,10 @@
             <div class="exp-desc">{{ prod.descripcion }}</div>
         </div>
         {% endif %}
-    {% empty %}
-        <div class="exp-desc">No hay productos académicos registrados.</div>
     {% endfor %}
+    {% endif %}
 
+    {% if productos_laborales %}
     <div class="section-title">Productos Laborales</div>
     {% for pl in productos_laborales %}
         {% if pl.activarparaqueseveaenfront %}
@@ -123,10 +124,10 @@
             <div class="exp-desc">{{ pl.descripcion }}</div>
         </div>
         {% endif %}
-    {% empty %}
-        <div class="exp-desc">No hay productos laborales registrados.</div>
     {% endfor %}
+    {% endif %}
 
+    {% if garage %}
     <div class="section-title">Venta de Garage / Otros Bienes</div>
     {% for art in garage %}
         {% if art.activarparaqueseveaenfront %}
@@ -137,8 +138,7 @@
             <div class="exp-desc">{{ art.descripcion }}</div>
         </div>
         {% endif %}
-    {% empty %}
-        <div class="exp-desc">No hay artículos de garage registrados.</div>
     {% endfor %}
+    {% endif %}
 </body>
 </html>
