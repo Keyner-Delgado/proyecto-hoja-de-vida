@@ -10,6 +10,6 @@ urlpatterns = [
     # Nueva ruta:
     path('productos-laborales/', views.productos_laborales, name='productos_laborales'),
     path('garage/', views.garage, name='garage'),
-    path('reporte-personal/', views.pdf_datos_personales, name='pdf_personales'),
+    path('reporte-personal/', views.pdf_datos_personales, name='pdf_datos_personales'),
 ]
 
