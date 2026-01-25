@@ -56,7 +56,10 @@ def crear_caratula(texto):
 
 # 3. VISTAS DEL SITIO WEB
 def home(request):
+    # Usamos .first() pero verificamos que exista para evitar el error 500
     perfil = DatosPersonales.objects.first()
+    if not perfil:
+        return HttpResponse("Error: No se encontró ningún perfil en la base de datos. Por favor, crea uno en el Admin.")
     return render(request, 'home.html', {'perfil': perfil})
 
 def experiencia(request):
@@ -91,9 +94,10 @@ def garage(request):
 
 # 4. VISTA MAESTRA PARA GENERAR EL PDF
 def pdf_datos_personales(request):
+    # Buscamos el perfil activo para el PDF
     perfil = get_object_or_404(DatosPersonales, perfilactivo=1)
     
-    # CAPTURA DE PARÁMETROS DEL MODAL (NUEVO)
+    # CAPTURA DE PARÁMETROS DEL MODAL
     incluir_exp = request.GET.get('exp', 'on') == 'on'
     incluir_cur = request.GET.get('cur', 'on') == 'on'
     incluir_rec = request.GET.get('rec', 'on') == 'on'
@@ -101,14 +105,12 @@ def pdf_datos_personales(request):
     incluir_lab = request.GET.get('lab', 'on') == 'on'
     incluir_gar = request.GET.get('gar') == 'on'
 
-    # CONSULTAS FILTRADAS (MODIFICADO PARA USAR LOS CHECKS)
+    # CONSULTAS FILTRADAS
     experiencias = ExperienciaLaboral.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_exp else []
     productos_academicos = ProductosAcademicos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_aca else []
     productos_laborales = ProductosLaborales.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_lab else []
     cursos_objs = CursosRealizados.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_cur else []
     reconocimientos_objs = Reconocimientos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_rec else []
-    
-    # NUEVA CONSULTA: GARAGE
     articulos_garage = VentaGarage.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_gar else []
     
     template = get_template('reportes/pdf_personales.html')
@@ -119,7 +121,7 @@ def pdf_datos_personales(request):
         'productos_laborales': productos_laborales,
         'cursos': cursos_objs,
         'reconocimientos': reconocimientos_objs,
-        'garage': articulos_garage,  # Enviamos los datos de garage al PDF
+        'garage': articulos_garage,
     }
     html = template.render(context)
     
@@ -133,7 +135,6 @@ def pdf_datos_personales(request):
     buffer_cv_base.seek(0)
     writer.append(buffer_cv_base)
 
-    # UNIÓN DE PDFs CONDICIONAL (Solo si la sección está activa)
     if incluir_cur:
         cursos_con_pdf = [c for c in cursos_objs if c.rutacertificado]
         if cursos_con_pdf:
