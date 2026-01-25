@@ -13,15 +13,14 @@ from pypdf import PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
-# 1. IMPORTACIÓN DE MODELOS
+# 1. IMPORTACIÓN DE MODELOS (Se eliminó ReporteUnificado)
 from .models import (
     DatosPersonales, ExperienciaLaboral, CursosRealizados, 
     Reconocimientos, ProductosAcademicos, ProductosLaborales, 
-    VentaGarage, ReporteUnificado
+    VentaGarage
 )
 
-# 2. FUNCIONES DE APOYO (Helpers)
-
+# 2. FUNCIONES DE APOYO (Helpers) - Se mantienen igual
 def link_callback(uri, rel):
     """Convierte URIs de archivos estáticos y media en rutas absolutas."""
     if uri.startswith('http'):
@@ -55,7 +54,7 @@ def crear_caratula(texto):
     packet.seek(0)
     return packet
 
-# 3. VISTAS DEL SITIO WEB
+# 3. VISTAS DEL SITIO WEB (Corregidas para no buscar ReporteUnificado)
 
 def home(request):
     perfil = DatosPersonales.objects.first()
@@ -69,14 +68,14 @@ def experiencia(request):
 def cursos(request):
     perfil = DatosPersonales.objects.first()
     items = CursosRealizados.objects.filter(idperfil=perfil)
-    reporte = ReporteUnificado.objects.filter(tipo='CURSOS').first()
-    return render(request, 'cursos.html', {'perfil': perfil, 'items': items, 'reporte_cursos': reporte})
+    # Se eliminó la búsqueda de reporte
+    return render(request, 'cursos.html', {'perfil': perfil, 'items': items})
 
 def reconocimientos(request):
     perfil = DatosPersonales.objects.first()
     items = Reconocimientos.objects.filter(idperfil=perfil)
-    reporte = ReporteUnificado.objects.filter(tipo='RECONOCIMIENTOS').first()
-    return render(request, 'reconocimientos.html', {'perfil': perfil, 'items': items, 'reporte_premios': reporte})
+    # Se eliminó la búsqueda de reporte
+    return render(request, 'reconocimientos.html', {'perfil': perfil, 'items': items})
 
 def productos_academicos(request):
     perfil = DatosPersonales.objects.first()
@@ -93,21 +92,16 @@ def garage(request):
     items = VentaGarage.objects.filter(idperfil=perfil)
     return render(request, 'garage.html', {'perfil': perfil, 'items': items})
 
-# 4. VISTA MAESTRA PARA GENERAR EL PDF CON ANEXOS
-
+# 4. VISTA MAESTRA PARA GENERAR EL PDF (Se mantiene igual, no usaba ese modelo)
 def pdf_datos_personales(request):
-    # Obtenemos el perfil activo
     perfil = get_object_or_404(DatosPersonales, perfilactivo=1)
     
-    # --- CONSULTAS FILTRADAS POR ACTIVACIÓN ---
-    # Solo traeremos lo que tenga el check 'activarparaqueseveaenfront=True'
     experiencias = ExperienciaLaboral.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
     productos_academicos = ProductosAcademicos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
     productos_laborales = ProductosLaborales.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
     cursos_objs = CursosRealizados.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
     reconocimientos_objs = Reconocimientos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
     
-    # --- PARTE A: GENERAR EL CV BASE (xhtml2pdf) ---
     template = get_template('reportes/pdf_personales.html')
     context = {
         'perfil': perfil,
@@ -125,12 +119,10 @@ def pdf_datos_personales(request):
     if pisa_status.err:
         return HttpResponse('Error al generar el cuerpo del PDF', status=500)
     
-    # --- PARTE B: UNIR CON LOS PDFs DE CLOUDINARY (pypdf) ---
     writer = PdfWriter()
     buffer_cv_base.seek(0)
     writer.append(buffer_cv_base)
 
-    # 1. Anexar Cursos (Solo los activos)
     cursos_con_pdf = [c for c in cursos_objs if c.rutacertificado]
     if cursos_con_pdf:
         writer.append(crear_caratula("Certificados de Cursos"))
@@ -142,7 +134,6 @@ def pdf_datos_personales(request):
             except Exception as e:
                 print(f"Error al descargar curso: {e}")
 
-    # 2. Anexar Reconocimientos (Solo los activos)
     reco_con_pdf = [r for r in reconocimientos_objs if r.rutacertificado]
     if reco_con_pdf:
         writer.append(crear_caratula("Reconocimientos"))
@@ -154,7 +145,6 @@ def pdf_datos_personales(request):
             except Exception as e:
                 print(f"Error al descargar reconocimiento: {e}")
 
-    # --- PARTE C: RESPUESTA ---
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="CV_{perfil.apellidos}_Completo.pdf"'
     

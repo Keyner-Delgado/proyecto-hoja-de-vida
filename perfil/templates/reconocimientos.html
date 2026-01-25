@@ -10,13 +10,6 @@
         </h2>
         <p class="text-muted">Logros y distinciones obtenidos a lo largo de la trayectoria.</p>
 
-        {% if reporte_premios %}
-            <div class="mt-4 mb-2">
-                <a href="{{ reporte_premios.archivo_pdf.url }}" class="btn btn-primary shadow-sm rounded-pill px-4" target="_blank">
-                    <i class="bi bi-file-earmark-pdf-fill me-2"></i>Descargar Reconocimientos
-                </a>
-            </div>
-        {% endif %}
         <hr class="mx-auto" style="width: 50px; height: 3px; background-color: #0d6efd;">
     </div>
 
@@ -86,6 +79,7 @@
 </div>
 
 <style>
+    /* Los estilos se mantienen exactamente igual para no alterar el diseño */
     .card {
         border-radius: 8px;
         transition: all 0.3s ease;
@@ -105,10 +99,9 @@
         vertical-align: middle;
     }
 
-    /* Estilo para el botón secundario (gris) resaltado */
     .btn-outline-secondary {
         border-color: #6c757d;
-        color: #343a40; /* Gris oscuro para legibilidad */
+        color: #343a40;
         border-width: 1px;
     }
     .btn-outline-secondary:hover {
@@ -116,7 +109,6 @@
         color: white !important;
     }
 
-    /* Botón de PDF original */
     .btn-outline-primary {
         border-color: #0d6efd;
         color: #0d6efd;
@@ -127,7 +119,6 @@
         color: white !important;
     }
 
-    /* Uniformidad en botones */
     .btn-sm {
         padding: 0.5rem;
         font-size: 0.85rem;

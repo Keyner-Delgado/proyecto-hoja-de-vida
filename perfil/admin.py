@@ -9,7 +9,6 @@ class DatosPersonalesAdmin(admin.ModelAdmin):
     list_display = ('idperfil', 'nombres', 'apellidos', 'numerocedula', 'correo', 'perfilactivo')
     search_fields = ('nombres', 'apellidos', 'numerocedula', 'correo')
     list_filter = ('sexo', 'nacionalidad', 'perfilactivo')
-    # Esto organiza los campos en secciones dentro del formulario de edición
     fieldsets = (
         ('Información Básica', {
             'fields': ('foto_perfil', 'nombres', 'apellidos', 'numerocedula', 'correo', 'sexo', 'fechanacimiento')
@@ -48,11 +47,6 @@ class ProductosLaboralesAdmin(admin.ModelAdmin):
 
 @admin.register(VentaGarage)
 class VentaGarageAdmin(admin.ModelAdmin):
-    list_display = ('nombreproducto', 'valordelbien', 'estadoproducto', 'idperfil')
+    # Solo añadimos fechapublicacion a tu lista original
+    list_display = ('nombreproducto', 'valordelbien', 'estadoproducto', 'fechapublicacion', 'idperfil')
     list_filter = ('estadoproducto',)
-
-from .models import ReporteUnificado
-
-@admin.register(ReporteUnificado)
-class ReporteUnificadoAdmin(admin.ModelAdmin):
-    list_display = ('tipo', 'fecha_actualizacion')

@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 class DatosPersonales(models.Model):
     SEXO_CHOICES = [('H', 'Hombre'), ('M', 'Mujer')]
@@ -7,13 +9,10 @@ class DatosPersonales(models.Model):
     idperfil = models.AutoField(primary_key=True)
     descripcionperfil = models.CharField(max_length=200, null=True, blank=True, verbose_name="Descripción del Perfil")
     perfilactivo = models.IntegerField(
-    default=1,
-    choices=[(1, '1 (Activo)'), (0, '0 (Inactivo)')], # Crea un menú desplegable con los números
-    validators=[
-        MinValueValidator(0),
-        MaxValueValidator(1)
-    ],
-    verbose_name="Estado del Perfil"    
+        default=1,
+        choices=[(1, '1 (Activo)'), (0, '0 (Inactivo)')],
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
+        verbose_name="Estado del Perfil"    
     )    
     apellidos = models.CharField(max_length=60, verbose_name="Apellidos")
     nombres = models.CharField(max_length=60, verbose_name="Nombres")
@@ -36,6 +35,10 @@ class DatosPersonales(models.Model):
         verbose_name = "Dato Personal"
         verbose_name_plural = "1. Datos Personales"
 
+    def clean(self):
+        if self.fechanacimiento and self.fechanacimiento > timezone.now().date():
+            raise ValidationError({'fechanacimiento': "La fecha de nacimiento no puede ser una fecha futura."})
+
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"
 
@@ -53,22 +56,23 @@ class ExperienciaLaboral(models.Model):
     fechafingestion = models.DateField(null=True, blank=True, verbose_name="Fecha de Fin")
     descripcionfunciones = models.CharField(max_length=250, verbose_name="Descripción de Funciones")
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Mostrar en la Web")
-    rutacertificado = models.FileField(
-        upload_to='certificados/experiencia/', 
-        null=True, 
-        blank=True, 
-        verbose_name="Subir Certificado Laboral"
-    )
-    # Opción de enlace (Google Drive / Web)
-    url_certificado_externo = models.URLField(
-        max_length=500, 
-        null=True, 
-        blank=True, 
-        verbose_name="Link del Certificado"
-    )
+    rutacertificado = models.FileField(upload_to='certificados/experiencia/', null=True, blank=True, verbose_name="Subir Certificado Laboral")
+    url_certificado_externo = models.URLField(max_length=500, null=True, blank=True, verbose_name="Link del Certificado")
+
     class Meta:
         verbose_name = "Experiencia Laboral"
         verbose_name_plural = "2. Experiencia Laboral"
+        ordering = ['-fechainiciogestion']
+
+    def clean(self):
+        hoy = timezone.now().date()
+        if self.fechainiciogestion and self.fechainiciogestion > hoy:
+            raise ValidationError({'fechainiciogestion': "La fecha de inicio no puede ser futura."})
+        if self.fechafingestion:
+            if self.fechafingestion > hoy:
+                raise ValidationError({'fechafingestion': "La fecha de fin no puede ser futura."})
+            if self.fechainiciogestion and self.fechafingestion < self.fechainiciogestion:
+                raise ValidationError({'fechafingestion': "La fecha de fin no puede ser anterior a la de inicio."})
 
 class CursosRealizados(models.Model):
     idcursorealizado = models.AutoField(primary_key=True)
@@ -83,22 +87,22 @@ class CursosRealizados(models.Model):
     telefonocontactoauspicia = models.CharField(max_length=60, verbose_name="Teléfono Contacto")
     emailempresapatrocinadora = models.EmailField(max_length=60, verbose_name="Email Empresa")
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Activo en Web")
-    rutacertificado = models.FileField(
-        upload_to='certificados/', 
-        null=True, 
-        blank=True, 
-        verbose_name="Subir Certificado"
-    )
-    # Nuevo campo para link externo
-    url_certificado_externo = models.URLField(
-        max_length=500, 
-        null=True, 
-        blank=True, 
-        verbose_name="Link del Certificado"
-    )
+    rutacertificado = models.FileField(upload_to='certificados/', null=True, blank=True, verbose_name="Subir Certificado")
+    url_certificado_externo = models.URLField(max_length=500, null=True, blank=True, verbose_name="Link del Certificado")
+
     class Meta:
         verbose_name = "Curso"
         verbose_name_plural = "3. Cursos Realizados"
+        ordering = ['-fechainicio']
+
+    def clean(self):
+        hoy = timezone.now().date()
+        if self.fechainicio > hoy:
+            raise ValidationError({'fechainicio': "La fecha de inicio no puede ser futura."})
+        if self.fechafin > hoy:
+            raise ValidationError({'fechafin': "La fecha de fin no puede ser futura."})
+        if self.fechafin < self.fechainicio:
+            raise ValidationError({'fechafin': "La fecha de fin no puede ser anterior a la de inicio."})
 
 class ProductosAcademicos(models.Model):
     idproductoacademico = models.AutoField(primary_key=True)
@@ -123,6 +127,11 @@ class ProductosLaborales(models.Model):
     class Meta:
         verbose_name = "Producto Laboral"
         verbose_name_plural = "5. Productos Laborales"
+        ordering = ['-fechaproducto']
+
+    def clean(self):
+        if self.fechaproducto > timezone.now().date():
+            raise ValidationError({'fechaproducto': "La fecha del producto no puede ser una fecha futura."})
 
 class Reconocimientos(models.Model):
     TIPO_CHOICES = [('Académico', 'Académico'), ('Público', 'Público'), ('Privado', 'Privado')]
@@ -135,22 +144,17 @@ class Reconocimientos(models.Model):
     nombrecontactoauspicia = models.CharField(max_length=100, verbose_name="Nombre de Contacto")
     telefonocontactoauspicia = models.CharField(max_length=60, verbose_name="Teléfono Contacto")
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Mostrar en Web")
-    rutacertificado = models.FileField(
-        upload_to='reconocimientos/', 
-        null=True, 
-        blank=True, 
-        verbose_name="Archivo del Reconocimiento"
-    )
-    # Nuevo campo para link externo
-    url_certificado_externo = models.URLField(
-        max_length=500, 
-        null=True, 
-        blank=True, 
-        verbose_name="Link del Certificado"
-    )
+    rutacertificado = models.FileField(upload_to='reconocimientos/', null=True, blank=True, verbose_name="Archivo del Reconocimiento")
+    url_certificado_externo = models.URLField(max_length=500, null=True, blank=True, verbose_name="Link del Certificado")
+
     class Meta:
         verbose_name = "Reconocimiento"
         verbose_name_plural = "6. Reconocimientos"
+        ordering = ['-fechareconocimiento']
+
+    def clean(self):
+        if self.fechareconocimiento > timezone.now().date():
+            raise ValidationError({'fechareconocimiento': "La fecha del reconocimiento no puede ser una fecha futura."})
 
 class VentaGarage(models.Model):
     ESTADO_CHOICES = [('Bueno', 'Bueno'), ('Regular', 'Regular')]
@@ -160,38 +164,15 @@ class VentaGarage(models.Model):
     estadoproducto = models.CharField(max_length=40, choices=ESTADO_CHOICES, verbose_name="Estado del producto")
     descripcion = models.CharField(max_length=250, verbose_name="Descripción")
     valordelbien = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Valor ($)")
+    fechapublicacion = models.DateField(verbose_name="Fecha de Publicación", default=timezone.now)
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Mostrar en Web")
     fotoproducto = models.ImageField(upload_to='garage/', null=True, blank=True, verbose_name="Foto del Producto")
 
     class Meta:
         verbose_name = "Artículo de Garage"
         verbose_name_plural = "7. Venta de Garage"
+        ordering = ['-fechapublicacion']
 
-class ReporteUnificado(models.Model):
-    TIPO_CHOICES = [
-        ('CURSOS', 'Certificados de Cursos'),
-        ('RECONOCIMIENTOS', 'Reconocimientos y Premios'),
-    ]
-    
-    tipo = models.CharField(
-        max_length=20, 
-        choices=TIPO_CHOICES, 
-        unique=True, 
-        verbose_name="Categoría del Reporte"
-    )
-    archivo_pdf = models.FileField(
-        upload_to='reportes_unificados/', 
-        verbose_name="Archivo PDF Unificado"
-    )
-    fecha_actualizacion = models.DateTimeField(
-        auto_now=True, 
-        verbose_name="Última modificación"
-    )
-
-    class Meta:
-        # Esto hace que aparezca como la opción 8 en tu panel
-        verbose_name = "8. Reporte Unificado"
-        verbose_name_plural = "8. Reportes Unificados"
-
-    def __str__(self):
-        return f"Reporte de {self.get_tipo_display()}"
+    def clean(self):
+        if self.fechapublicacion and self.fechapublicacion > timezone.now().date():
+            raise ValidationError({'fechapublicacion': "La fecha de publicación no puede ser una fecha futura."})
