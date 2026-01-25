@@ -7,22 +7,17 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-
-# NUEVAS IMPORTACIONES PARA UNIR PDFs
 from pypdf import PdfWriter 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
-# 1. IMPORTACIÓN DE MODELOS
 from .models import (
     DatosPersonales, ExperienciaLaboral, CursosRealizados, 
     Reconocimientos, ProductosAcademicos, ProductosLaborales, 
     VentaGarage
 )
 
-# 2. FUNCIONES DE APOYO (Helpers)
 def link_callback(uri, rel):
-    """Convierte URIs de archivos estáticos y media en rutas absolutas."""
     if uri.startswith('http'):
         return uri
     result = finders.find(uri)
@@ -45,7 +40,6 @@ def link_callback(uri, rel):
     return path
 
 def crear_caratula(texto):
-    """Crea una página PDF con un título grande para separar secciones."""
     packet = io.BytesIO()
     can = canvas.Canvas(packet, pagesize=letter)
     can.setFont("Helvetica-Bold", 32)
@@ -54,13 +48,22 @@ def crear_caratula(texto):
     packet.seek(0)
     return packet
 
-# 3. VISTAS DEL SITIO WEB
+# --- VISTAS CORREGIDAS ---
+
 def home(request):
-    # Usamos .first() pero verificamos que exista para evitar el error 500
-    perfil = DatosPersonales.objects.first()
-    if not perfil:
-        return HttpResponse("Error: No se encontró ningún perfil en la base de datos. Por favor, crea uno en el Admin.")
-    return render(request, 'home.html', {'perfil': perfil})
+    try:
+        # Buscamos el perfil que tenga perfilactivo=1
+        perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
+        if not perfil:
+            # Si no hay activo, tomamos el primero que exista
+            perfil = DatosPersonales.objects.first()
+        
+        if not perfil:
+            return HttpResponse("No hay perfiles creados. Por favor agrega uno en el Admin.")
+            
+        return render(request, 'home.html', {'perfil': perfil})
+    except Exception as e:
+        return HttpResponse(f"Error crítico en Home: {e}")
 
 def experiencia(request):
     perfil = DatosPersonales.objects.first()
@@ -92,12 +95,13 @@ def garage(request):
     items = VentaGarage.objects.filter(idperfil=perfil)
     return render(request, 'garage.html', {'perfil': perfil, 'items': items})
 
-# 4. VISTA MAESTRA PARA GENERAR EL PDF
 def pdf_datos_personales(request):
-    # Buscamos el perfil activo para el PDF
-    perfil = get_object_or_404(DatosPersonales, perfilactivo=1)
-    
-    # CAPTURA DE PARÁMETROS DEL MODAL
+    # Buscamos el perfil activo
+    perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
+    if not perfil:
+        perfil = get_object_or_404(DatosPersonales)
+
+    # Captura de parámetros
     incluir_exp = request.GET.get('exp', 'on') == 'on'
     incluir_cur = request.GET.get('cur', 'on') == 'on'
     incluir_rec = request.GET.get('rec', 'on') == 'on'
@@ -105,7 +109,7 @@ def pdf_datos_personales(request):
     incluir_lab = request.GET.get('lab', 'on') == 'on'
     incluir_gar = request.GET.get('gar') == 'on'
 
-    # CONSULTAS FILTRADAS
+    # Consultas usando el nombre de campo idperfil que vimos en models.py
     experiencias = ExperienciaLaboral.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_exp else []
     productos_academicos = ProductosAcademicos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_aca else []
     productos_laborales = ProductosLaborales.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_lab else []
@@ -135,17 +139,18 @@ def pdf_datos_personales(request):
     buffer_cv_base.seek(0)
     writer.append(buffer_cv_base)
 
+    # Anexar certificados si corresponde
     if incluir_cur:
         cursos_con_pdf = [c for c in cursos_objs if c.rutacertificado]
         if cursos_con_pdf:
             writer.append(crear_caratula("Certificados de Cursos"))
             for curso in cursos_con_pdf:
                 try:
-                    response = requests.get(curso.rutacertificado.url, timeout=15)
+                    response = requests.get(curso.rutacertificado.url, timeout=10)
                     if response.status_code == 200:
                         writer.append(io.BytesIO(response.content))
-                except Exception as e:
-                    print(f"Error al descargar curso: {e}")
+                except:
+                    pass
 
     if incluir_rec:
         reco_con_pdf = [r for r in reconocimientos_objs if r.rutacertificado]
@@ -153,16 +158,14 @@ def pdf_datos_personales(request):
             writer.append(crear_caratula("Reconocimientos"))
             for reco in reco_con_pdf:
                 try:
-                    response = requests.get(reco.rutacertificado.url, timeout=15)
+                    response = requests.get(reco.rutacertificado.url, timeout=10)
                     if response.status_code == 200:
                         writer.append(io.BytesIO(response.content))
-                except Exception as e:
-                    print(f"Error al descargar reconocimiento: {e}")
+                except:
+                    pass
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="CV_{perfil.apellidos}_Completo.pdf"'
-    
+    response['Content-Disposition'] = f'inline; filename="CV_{perfil.apellidos}.pdf"'
     writer.write(response)
     writer.close()
-    
     return response
