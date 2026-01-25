@@ -13,14 +13,14 @@ from pypdf import PdfWriter
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 
-# 1. IMPORTACIÓN DE MODELOS (Se eliminó ReporteUnificado)
+# 1. IMPORTACIÓN DE MODELOS
 from .models import (
     DatosPersonales, ExperienciaLaboral, CursosRealizados, 
     Reconocimientos, ProductosAcademicos, ProductosLaborales, 
     VentaGarage
 )
 
-# 2. FUNCIONES DE APOYO (Helpers) - Se mantienen igual
+# 2. FUNCIONES DE APOYO (Helpers)
 def link_callback(uri, rel):
     """Convierte URIs de archivos estáticos y media en rutas absolutas."""
     if uri.startswith('http'):
@@ -54,8 +54,7 @@ def crear_caratula(texto):
     packet.seek(0)
     return packet
 
-# 3. VISTAS DEL SITIO WEB (Corregidas para no buscar ReporteUnificado)
-
+# 3. VISTAS DEL SITIO WEB
 def home(request):
     perfil = DatosPersonales.objects.first()
     return render(request, 'home.html', {'perfil': perfil})
@@ -68,13 +67,11 @@ def experiencia(request):
 def cursos(request):
     perfil = DatosPersonales.objects.first()
     items = CursosRealizados.objects.filter(idperfil=perfil)
-    # Se eliminó la búsqueda de reporte
     return render(request, 'cursos.html', {'perfil': perfil, 'items': items})
 
 def reconocimientos(request):
     perfil = DatosPersonales.objects.first()
     items = Reconocimientos.objects.filter(idperfil=perfil)
-    # Se eliminó la búsqueda de reporte
     return render(request, 'reconocimientos.html', {'perfil': perfil, 'items': items})
 
 def productos_academicos(request):
@@ -92,15 +89,27 @@ def garage(request):
     items = VentaGarage.objects.filter(idperfil=perfil)
     return render(request, 'garage.html', {'perfil': perfil, 'items': items})
 
-# 4. VISTA MAESTRA PARA GENERAR EL PDF (Se mantiene igual, no usaba ese modelo)
+# 4. VISTA MAESTRA PARA GENERAR EL PDF
 def pdf_datos_personales(request):
     perfil = get_object_or_404(DatosPersonales, perfilactivo=1)
     
-    experiencias = ExperienciaLaboral.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
-    productos_academicos = ProductosAcademicos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
-    productos_laborales = ProductosLaborales.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
-    cursos_objs = CursosRealizados.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
-    reconocimientos_objs = Reconocimientos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True)
+    # CAPTURA DE PARÁMETROS DEL MODAL (NUEVO)
+    incluir_exp = request.GET.get('exp', 'on') == 'on'
+    incluir_cur = request.GET.get('cur', 'on') == 'on'
+    incluir_rec = request.GET.get('rec', 'on') == 'on'
+    incluir_aca = request.GET.get('aca', 'on') == 'on'
+    incluir_lab = request.GET.get('lab', 'on') == 'on'
+    incluir_gar = request.GET.get('gar') == 'on'
+
+    # CONSULTAS FILTRADAS (MODIFICADO PARA USAR LOS CHECKS)
+    experiencias = ExperienciaLaboral.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_exp else []
+    productos_academicos = ProductosAcademicos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_aca else []
+    productos_laborales = ProductosLaborales.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_lab else []
+    cursos_objs = CursosRealizados.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_cur else []
+    reconocimientos_objs = Reconocimientos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_rec else []
+    
+    # NUEVA CONSULTA: GARAGE
+    articulos_garage = VentaGarage.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_gar else []
     
     template = get_template('reportes/pdf_personales.html')
     context = {
@@ -110,6 +119,7 @@ def pdf_datos_personales(request):
         'productos_laborales': productos_laborales,
         'cursos': cursos_objs,
         'reconocimientos': reconocimientos_objs,
+        'garage': articulos_garage,  # Enviamos los datos de garage al PDF
     }
     html = template.render(context)
     
@@ -123,27 +133,30 @@ def pdf_datos_personales(request):
     buffer_cv_base.seek(0)
     writer.append(buffer_cv_base)
 
-    cursos_con_pdf = [c for c in cursos_objs if c.rutacertificado]
-    if cursos_con_pdf:
-        writer.append(crear_caratula("Certificados de Cursos"))
-        for curso in cursos_con_pdf:
-            try:
-                response = requests.get(curso.rutacertificado.url, timeout=15)
-                if response.status_code == 200:
-                    writer.append(io.BytesIO(response.content))
-            except Exception as e:
-                print(f"Error al descargar curso: {e}")
+    # UNIÓN DE PDFs CONDICIONAL (Solo si la sección está activa)
+    if incluir_cur:
+        cursos_con_pdf = [c for c in cursos_objs if c.rutacertificado]
+        if cursos_con_pdf:
+            writer.append(crear_caratula("Certificados de Cursos"))
+            for curso in cursos_con_pdf:
+                try:
+                    response = requests.get(curso.rutacertificado.url, timeout=15)
+                    if response.status_code == 200:
+                        writer.append(io.BytesIO(response.content))
+                except Exception as e:
+                    print(f"Error al descargar curso: {e}")
 
-    reco_con_pdf = [r for r in reconocimientos_objs if r.rutacertificado]
-    if reco_con_pdf:
-        writer.append(crear_caratula("Reconocimientos"))
-        for reco in reco_con_pdf:
-            try:
-                response = requests.get(reco.rutacertificado.url, timeout=15)
-                if response.status_code == 200:
-                    writer.append(io.BytesIO(response.content))
-            except Exception as e:
-                print(f"Error al descargar reconocimiento: {e}")
+    if incluir_rec:
+        reco_con_pdf = [r for r in reconocimientos_objs if r.rutacertificado]
+        if reco_con_pdf:
+            writer.append(crear_caratula("Reconocimientos"))
+            for reco in reco_con_pdf:
+                try:
+                    response = requests.get(reco.rutacertificado.url, timeout=15)
+                    if response.status_code == 200:
+                        writer.append(io.BytesIO(response.content))
+                except Exception as e:
+                    print(f"Error al descargar reconocimiento: {e}")
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="CV_{perfil.apellidos}_Completo.pdf"'

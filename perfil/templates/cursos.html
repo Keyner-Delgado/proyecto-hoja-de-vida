@@ -24,9 +24,9 @@
                                 <span class="badge bg-info text-dark" style="font-size: 0.75rem;">{{ curso.totalhoras }} Horas</span>
                                 <small class="text-muted fw-bold">
                                     <i class="bi bi-calendar3 me-1"></i> 
-                                    {{ curso.fechainicio|date:"d/m/Y" }} - 
+                                    {{ curso.fechainicio|date:"d M, Y" }} - 
                                     {% if curso.fechafin %}
-                                        {{ curso.fechafin|date:"d/m/Y" }}
+                                        {{ curso.fechafin|date:"d M, Y" }}
                                     {% else %}
                                         Finalizado
                                     {% endif %}

@@ -65,7 +65,7 @@
         <div class="exp-container">
             <div class="job-title">{{ exp.cargodesempenado }}</div>
             <div class="company-info">{{ exp.nombrempresa }} — {{ exp.lugarempresa }}</div>
-            <div class="date-location">Desde: {{ exp.fechainiciogestion|date:"d/m/Y" }} — Hasta: {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"d/m/Y" }}{% else %}Actualidad{% endif %}</div>
+            <div class="date-location">Desde: {{ exp.fechainiciogestion|date:"M, Y" }} — Hasta: {% if exp.fechafingestion %}{{ exp.fechafingestion|date:"M, Y" }}{% else %}Actualidad{% endif %}</div>
             <div class="exp-desc">{{ exp.descripcionfunciones }}</div>
         </div>
         {% endif %}
@@ -79,7 +79,7 @@
         <div class="exp-container">
             <div class="job-title">{{ rec.tiporeconocimiento }}</div>
             <div class="company-info">{{ rec.entidadpatrocinadora }}</div>
-            <div class="date-location">Fecha: {{ rec.fechareconocimiento|date:"d/m/Y" }}</div>
+            <div class="date-location">Fecha: {{ rec.fechareconocimiento|date:"d M, Y" }}</div>
             <div class="exp-desc">{{ rec.descripcionreconocimiento }}</div>
         </div>
         {% endif %}
@@ -93,7 +93,7 @@
         <div class="exp-container">
             <div class="job-title">{{ curso.nombrecurso }}</div>
             <div class="company-info">{{ curso.entidadpatrocinadora }}</div>
-            <div class="date-location">Desde: {{ curso.fechainicio|date:"d/m/Y" }} — Hasta: {{ curso.fechafin|date:"d/m/Y" }}</div>
+            <div class="date-location">Desde: {{ curso.fechainicio|date:"d M, Y" }} — Hasta: {{ curso.fechafin|date:"d M, Y" }}</div>
             <div class="exp-desc">{{ curso.descripcioncurso }} ({{ curso.totalhoras }} horas)</div>
         </div>
         {% endif %}
@@ -119,12 +119,26 @@
         {% if pl.activarparaqueseveaenfront %}
         <div class="exp-container">
             <div class="job-title">{{ pl.nombreproducto }}</div>
-            <div class="date-location">Fecha: {{ pl.fechaproducto|date:"d/m/Y" }}</div>
+            <div class="date-location">Fecha: {{ pl.fechaproducto|date:"d M, Y" }}</div>
             <div class="exp-desc">{{ pl.descripcion }}</div>
         </div>
         {% endif %}
     {% empty %}
         <div class="exp-desc">No hay productos laborales registrados.</div>
+    {% endfor %}
+
+    <div class="section-title">Venta de Garage / Otros Bienes</div>
+    {% for art in garage %}
+        {% if art.activarparaqueseveaenfront %}
+        <div class="exp-container">
+            <div class="job-title">{{ art.nombreproducto }}</div>
+            <div class="company-info">Estado: {{ art.estadoproducto }} — Valor: ${{ art.valordelbien }}</div>
+            <div class="date-location">Publicado: {{ art.fechapublicacion|date:"d M, Y" }}</div>
+            <div class="exp-desc">{{ art.descripcion }}</div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <div class="exp-desc">No hay artículos de garage registrados.</div>
     {% endfor %}
 </body>
 </html>
