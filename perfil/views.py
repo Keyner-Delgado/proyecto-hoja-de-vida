@@ -48,14 +48,12 @@ def crear_caratula(texto):
     packet.seek(0)
     return packet
 
-# --- VISTAS CORREGIDAS ---
+# --- VISTAS DEL SITIO WEB ---
 
 def home(request):
     try:
-        # Buscamos el perfil que tenga perfilactivo=1
         perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
         if not perfil:
-            # Si no hay activo, tomamos el primero que exista
             perfil = DatosPersonales.objects.first()
         
         if not perfil:
@@ -95,21 +93,25 @@ def garage(request):
     items = VentaGarage.objects.filter(idperfil=perfil)
     return render(request, 'garage.html', {'perfil': perfil, 'items': items})
 
+# --- VISTA PARA GENERAR EL PDF (CORREGIDA) ---
+
 def pdf_datos_personales(request):
-    # Buscamos el perfil activo
+    # 1. Obtener Perfil
     perfil = DatosPersonales.objects.filter(perfilactivo=1).first()
     if not perfil:
         perfil = get_object_or_404(DatosPersonales)
 
-    # Captura de parámetros
-    incluir_exp = request.GET.get('exp', 'on') == 'on'
-    incluir_cur = request.GET.get('cur', 'on') == 'on'
-    incluir_rec = request.GET.get('rec', 'on') == 'on'
-    incluir_aca = request.GET.get('aca', 'on') == 'on'
-    incluir_lab = request.GET.get('lab', 'on') == 'on'
+    # 2. Captura de parámetros SIN valores por defecto
+    # Si el switch está apagado, request.GET.get devuelve None.
+    # La comparación None == 'on' resulta en False.
+    incluir_exp = request.GET.get('exp') == 'on'
+    incluir_cur = request.GET.get('cur') == 'on'
+    incluir_rec = request.GET.get('rec') == 'on'
+    incluir_aca = request.GET.get('aca') == 'on'
+    incluir_lab = request.GET.get('lab') == 'on'
     incluir_gar = request.GET.get('gar') == 'on'
 
-    # Consultas usando el nombre de campo idperfil que vimos en models.py
+    # 3. Consultas Condicionales (Si la variable es False, la lista queda vacía [])
     experiencias = ExperienciaLaboral.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_exp else []
     productos_academicos = ProductosAcademicos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_aca else []
     productos_laborales = ProductosLaborales.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_lab else []
@@ -117,6 +119,7 @@ def pdf_datos_personales(request):
     reconocimientos_objs = Reconocimientos.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_rec else []
     articulos_garage = VentaGarage.objects.filter(idperfil=perfil, activarparaqueseveaenfront=True) if incluir_gar else []
     
+    # 4. Renderizado del Template HTML
     template = get_template('reportes/pdf_personales.html')
     context = {
         'perfil': perfil,
@@ -129,6 +132,7 @@ def pdf_datos_personales(request):
     }
     html = template.render(context)
     
+    # 5. Generación del PDF Base
     buffer_cv_base = io.BytesIO()
     pisa_status = pisa.CreatePDF(html, dest=buffer_cv_base, link_callback=link_callback)
     
@@ -139,7 +143,7 @@ def pdf_datos_personales(request):
     buffer_cv_base.seek(0)
     writer.append(buffer_cv_base)
 
-    # Anexar certificados si corresponde
+    # 6. Anexar Certificados (Solo si la sección fue incluida y existen archivos)
     if incluir_cur:
         cursos_con_pdf = [c for c in cursos_objs if c.rutacertificado]
         if cursos_con_pdf:
@@ -164,8 +168,10 @@ def pdf_datos_personales(request):
                 except:
                     pass
 
+    # 7. Respuesta Final
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="CV_{perfil.apellidos}.pdf"'
     writer.write(response)
     writer.close()
+    
     return response
