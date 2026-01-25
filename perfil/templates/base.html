@@ -10,8 +10,8 @@
     
     <style>
         :root {
-            --primary-dark: #1a2a3a; /* Azul profesional profundo */
-            --accent-blue: #3498db;  /* Azul para detalles */
+            --primary-dark: #1a2a3a;
+            --accent-blue: #3498db;
         }
 
         body { 
@@ -20,10 +20,9 @@
             display: flex; 
             flex-direction: column; 
             font-family: 'Inter', 'Segoe UI', sans-serif;
-            padding-top: 80px; /* Espacio para la navbar fija */
+            padding-top: 80px;
         }
 
-        /* Barra Superior Elegante */
         .navbar { 
             background-color: var(--primary-dark) !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
@@ -48,7 +47,6 @@
             transform: translateY(-1px);
         }
 
-        /* Botón de Admin resaltado */
         .btn-admin { 
             border: 1px solid var(--accent-blue) !important; 
             color: var(--accent-blue) !important; 
@@ -73,7 +71,6 @@
             border-top: 3px solid var(--accent-blue);
         }
 
-        /* Estilos personalizados para el Modal */
         .modal-content { border-radius: 15px; overflow: hidden; }
         .form-check-input:checked { background-color: var(--accent-blue); border-color: var(--accent-blue); }
     </style>
@@ -93,26 +90,44 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}"><i class=""></i> Inicio</a>
+                    <a class="nav-link" href="{% url 'home' %}">Inicio</a>
                 </li>
+                
+                {% if perfil.ver_experiencia %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'experiencia' %}"><i class=""></i> Experiencia</a>
+                    <a class="nav-link" href="{% url 'experiencia' %}">Experiencia</a>
                 </li>
+                {% endif %}
+
+                {% if perfil.ver_productos_academicos %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'productos_academicos' %}"><i class=""></i> P. Académicos</a>
+                    <a class="nav-link" href="{% url 'productos_academicos' %}">P. Académicos</a>
                 </li>
+                {% endif %}
+
+                {% if perfil.ver_productos_laborales %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'productos_laborales' %}"><i class=""></i> P. Laborales</a>
+                    <a class="nav-link" href="{% url 'productos_laborales' %}">P. Laborales</a>
                 </li>
+                {% endif %}
+
+                {% if perfil.ver_cursos %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'cursos' %}"><i class=""></i> Cursos</a>
+                    <a class="nav-link" href="{% url 'cursos' %}">Cursos</a>
                 </li>
+                {% endif %}
+
+                {% if perfil.ver_reconocimientos %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'reconocimientos' %}"><i class=""></i> Reconocimientos</a>
+                    <a class="nav-link" href="{% url 'reconocimientos' %}">Reconocimientos</a>
                 </li>
+                {% endif %}
+
+                {% if perfil.ver_garage %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'garage' %}"><i class=""></i> Garage</a>
+                    <a class="nav-link" href="{% url 'garage' %}">Garage</a>
                 </li>
+                {% endif %}
                 
                 <li class="nav-item">
                     <a class="nav-link btn-admin" href="/admin">
@@ -146,37 +161,48 @@
                 <div class="modal-body p-4">
                     <p class="text-muted small mb-4">Seleccione las secciones que desea incluir en el documento:</p>
                     
+                    {% if perfil.ver_experiencia %}
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" name="exp" id="checkExp" checked>
                         <label class="form-check-label fw-bold" for="checkExp">Experiencia Laboral</label>
                     </div>
+                    {% endif %}
 
+                    {% if perfil.ver_cursos %}
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" name="cur" id="checkCur" checked>
                         <label class="form-check-label fw-bold" for="checkCur">Cursos y Certificados</label>
                     </div>
+                    {% endif %}
 
+                    {% if perfil.ver_reconocimientos %}
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" name="rec" id="checkRec" checked>
                         <label class="form-check-label fw-bold" for="checkRec">Reconocimientos</label>
                     </div>
+                    {% endif %}
 
+                    {% if perfil.ver_productos_academicos %}
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" name="aca" id="checkAca" checked>
                         <label class="form-check-label fw-bold" for="checkAca">Productos Académicos</label>
                     </div>
+                    {% endif %}
 
+                    {% if perfil.ver_productos_laborales %}
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" name="lab" id="checkLab" checked>
                         <label class="form-check-label fw-bold" for="checkLab">Productos Laborales</label>
                     </div>
+                    {% endif %}
 
+                    {% if perfil.ver_garage %}
                     <hr class="my-3">
-
                     <div class="form-check form-switch mb-2">
                         <input class="form-check-input" type="checkbox" name="gar" id="checkGar">
                         <label class="form-check-label fw-bold text-primary" for="checkGar">Venta de Garage (Opcional)</label>
                     </div>
+                    {% endif %}
                 </div>
                 <div class="modal-footer bg-light border-0">
                     <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>

@@ -31,6 +31,14 @@ class DatosPersonales(models.Model):
     correo = models.EmailField(max_length=100, unique=True, verbose_name="Correo Electrónico")
     foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name="Foto de Perfil")
 
+    # --- INTERRUPTORES MAESTROS DE VISIBILIDAD (OPCIÓN A) ---
+    ver_experiencia = models.BooleanField(default=True, verbose_name="¿Mostrar Experiencia en la Web?")
+    ver_cursos = models.BooleanField(default=True, verbose_name="¿Mostrar Cursos en la Web?")
+    ver_reconocimientos = models.BooleanField(default=True, verbose_name="¿Mostrar Reconocimientos en la Web?")
+    ver_productos_academicos = models.BooleanField(default=True, verbose_name="¿Mostrar Prod. Académicos en la Web?")
+    ver_productos_laborales = models.BooleanField(default=True, verbose_name="¿Mostrar Prod. Laborales en la Web?")
+    ver_garage = models.BooleanField(default=True, verbose_name="¿Mostrar Garage en la Web?")
+
     class Meta:
         verbose_name = "Dato Personal"
         verbose_name_plural = "1. Datos Personales"
