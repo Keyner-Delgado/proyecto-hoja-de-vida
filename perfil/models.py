@@ -171,7 +171,7 @@ class VentaGarage(models.Model):
     nombreproducto = models.CharField(max_length=100, verbose_name="Nombre del producto")
     estadoproducto = models.CharField(max_length=40, choices=ESTADO_CHOICES, verbose_name="Estado del producto")
     descripcion = models.CharField(max_length=250, verbose_name="Descripción")
-    valordelbien = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Valor ($)")
+    valordelbien = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Valor ($)", validators=[MinValueValidator(0)])
     fechapublicacion = models.DateField(verbose_name="Fecha de Publicación", default=timezone.now)
     activarparaqueseveaenfront = models.BooleanField(default=True, verbose_name="Mostrar en Web")
     fotoproducto = models.ImageField(upload_to='garage/', null=True, blank=True, verbose_name="Foto del Producto")
